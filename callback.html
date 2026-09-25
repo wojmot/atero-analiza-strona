@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <!-- Must come before any subresource so the URL (with the code) is never sent as Referer. -->
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>TikTok Login Callback – atero_analiza</title>
+  <meta name="description" content="Redirect URI for TikTok Login Kit in the atero_analiza project.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </nav>
+
+    <h1>Logowanie przez TikTok</h1>
+
+    <section id="success" hidden>
+      <p class="notice">
+        Skopiuj ten kod i od razu wyślij go autorowi projektu. Kod jest jednorazowy i ważny
+        tylko przez kilka minut.
+      </p>
+      <label for="code">Kod autoryzacyjny</label>
+      <textarea id="code" class="code-box" readonly></textarea>
+      <button type="button" id="copy">Kopiuj kod</button>
+      <p class="meta" id="copy-status" aria-live="polite"></p>
+      <p class="meta" id="state-line" hidden>state: <code id="state"></code></p>
+    </section>
+
+    <section id="error" hidden>
+      <p class="notice error">
+        <strong>Logowanie nie powiodło się.</strong><br>
+        <span id="error-text"></span>
+      </p>
+      <p class="meta">Kod błędu: <code id="error-code"></code></p>
+    </section>
+
+    <section id="empty" hidden>
+      <p>
+        To jest strona techniczna projektu atero_analiza, używana podczas logowania przez
+        TikTok (TikTok Login Kit). Po zalogowaniu się i wyrażeniu zgody TikTok przekieruje Cię
+        tutaj i wyświetli się kod do skopiowania.
+      </p>
+    </section>
+
+    <footer>atero_analiza &middot; non-commercial project</footer>
+  </main>
+
+  <script>
+    // Display only: the code is never sent anywhere or stored.
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var code = params.get("code");
+      var state = params.get("state");
+      var error = params.get("error");
+      var errorDescription = params.get("error_description");
+
+      if (error) {
+        document.getElementById("error-text").textContent =
+          errorDescription || "TikTok nie podał szczegółów błędu.";
+        document.getElementById("error-code").textContent = error;
+        document.getElementById("error").hidden = false;
+      } else if (code) {
+        var box = document.getElementById("code");
+        var status = document.getElementById("copy-status");
+        box.value = code;
+        if (state) {
+          document.getElementById("state").textContent = state;
+          document.getElementById("state-line").hidden = false;
+        }
+        document.getElementById("copy").addEventListener("click", function () {
+          function fallback() {
+            box.focus();
+            box.select();
+            var ok = false;
+            try { ok = document.execCommand("copy"); } catch (e) {}
+            status.textContent = ok ? "Skopiowano." : "Zaznacz kod i skopiuj go ręcznie (Ctrl+C).";
+          }
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(code).then(function () {
+              status.textContent = "Skopiowano.";
+            }, fallback);
+          } else {
+            fallback();
+          }
+        });
+        document.getElementById("success").hidden = false;
+      } else {
+        document.getElementById("empty").hidden = false;
+      }
+    })();
+  </script>
+</body>
+</html>
